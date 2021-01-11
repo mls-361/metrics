@@ -22,7 +22,7 @@ type (
 	}
 
 	metrics struct {
-		mutex     sync.RWMutex
+		rwMutex   sync.RWMutex
 		CreatedAt int64                  `json:"created_at"`
 		Metrics   map[string]interface{} `json:"metrics"`
 	}
@@ -35,11 +35,11 @@ func New() Metrics {
 	}
 }
 
-func (ms *metrics) Handler() http.HandlerFunc {
+func (mcs *metrics) Handler() http.HandlerFunc {
 	return func(rw http.ResponseWriter, _ *http.Request) {
-		ms.mutex.RLock()
-		data, err := json.Marshal(ms)
-		ms.mutex.RUnlock()
+		mcs.rwMutex.RLock()
+		data, err := json.Marshal(mcs)
+		mcs.rwMutex.RUnlock()
 
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
@@ -52,12 +52,10 @@ func (ms *metrics) Handler() http.HandlerFunc {
 	}
 }
 
-func (ms *metrics) Register(id string, metric interface{}) {
-	ms.mutex.Lock()
-
-	ms.Metrics[id] = metric
-
-	ms.mutex.Unlock()
+func (mcs *metrics) Register(id string, metric interface{}) {
+	mcs.rwMutex.Lock()
+	mcs.Metrics[id] = metric
+	mcs.rwMutex.Unlock()
 }
 
 /*

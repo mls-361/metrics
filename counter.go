@@ -19,42 +19,42 @@ type (
 	}
 
 	counter struct {
-		pmutex    *sync.RWMutex
+		prwMutex  *sync.RWMutex
 		CreatedAt int64 `json:"created_at"`
 		Value     int64 `json:"value"`
 		Timestamp int64 `json:"timestamp"`
 	}
 )
 
-func (ms *metrics) NewCounter(id string) Counter {
+func (mcs *metrics) NewCounter(id string) Counter {
 	c := &counter{
-		pmutex:    &ms.mutex,
+		prwMutex:  &mcs.rwMutex,
 		CreatedAt: time.Now().UnixNano(),
 	}
 
-	ms.Register(id, c)
+	mcs.Register(id, c)
 
 	return c
 }
 
 // Dec AFAIRE.
 func (c *counter) Dec() {
-	c.pmutex.Lock()
+	c.prwMutex.Lock()
 
 	c.Value--
 	c.Timestamp = time.Now().UnixNano()
 
-	c.pmutex.Unlock()
+	c.prwMutex.Unlock()
 }
 
 // Inc AFAIRE.
 func (c *counter) Inc() {
-	c.pmutex.Lock()
+	c.prwMutex.Lock()
 
 	c.Value++
 	c.Timestamp = time.Now().UnixNano()
 
-	c.pmutex.Unlock()
+	c.prwMutex.Unlock()
 }
 
 /*
