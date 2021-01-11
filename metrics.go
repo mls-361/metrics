@@ -19,6 +19,8 @@ type (
 		Handler() http.HandlerFunc
 		Register(id string, metric interface{})
 		NewCounter(id string) Counter
+		NewGaugeFloat(id string) GaugeFloat
+		NewGaugeInt(id string) GaugeInt
 	}
 
 	metrics struct {
